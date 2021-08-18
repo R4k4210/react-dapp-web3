@@ -1,0 +1,44 @@
+{
+  "name": "react-dapp-web3",
+  "version": "1.0.0",
+  "description": "Easy Web3, Metamask and WalletConnect integration package. HOC and custom hook to manage wallet address, conection and signature.",
+  "keywords": [
+    "web3",
+    "walletconnect",
+    "metamask",
+    "web3-provider",
+    "hoc",
+    "hook"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublish": "yarn build",
+    "type:check": "tsc --noEmit"
+  },
+  "repository": "git@github.com:raka26/react-dapp-web3.git",
+  "author": "Santiago Chopitea",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "@walletconnect/web3-provider": "^1.6.1",
+    "web3": "^1.5.2"
+  },
+  "devDependencies": {
+    "@tsconfig/recommended": "^1.0.1",
+    "@types/react": "^17.0.18",
+    "@types/react-dom": "^17.0.9",
+    "prettier": "^2.3.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "typescript": "^4.3.5"
+  },
+  "peerDependencies": {
+    "react-dom": "^17.0.2",
+    "typescript": "^4.3.5"
+  }
+}
