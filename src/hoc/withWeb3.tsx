@@ -2,7 +2,7 @@ import { ComponentType, ReactElement } from "react";
 import useWeb3 from "../hooks/useWeb3";
 import Web3 from "web3";
 
-export interface IWithWeb3 {
+export type IWithWeb3 = {
   web3Data: {
     isWalletConnected: boolean;
     walletAddress: string;
@@ -12,7 +12,7 @@ export interface IWithWeb3 {
     disconnect: () => void;
     signMessage: (message: string) => void;
   };
-}
+};
 
 const withWeb3 =
   <T extends IWithWeb3 = IWithWeb3>(WrappedComponent: ComponentType<T>) =>
