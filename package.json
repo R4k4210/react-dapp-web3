@@ -22,7 +22,7 @@
     "prepublish": "yarn build"
   },
   "repository": {
-    "url": "git@github.com:raka26/react-dapp-web3.git",
+    "url": "https://github.com/R4k4210/react-dapp-web3.git",
     "type": "git"
   },
   "author": "Santiago Chopitea",
@@ -57,6 +57,7 @@
     "rollup": "^2.56.2",
     "rollup-plugin-typescript2": "^0.30.0",
     "ts-loader": "^9.2.5",
+    "dotenv": "^10.0.0",
     "typescript": "^4.3.5"
   },
   "peerDependencies": {

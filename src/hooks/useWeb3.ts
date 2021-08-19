@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { Web3Context, EActionTypes } from "../context/Web3Context";
+import { INFURA_ID } from "../env";
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
@@ -88,7 +89,7 @@ const useWeb3 = (): IUseWeb3 => {
 
   const instanceWalletConnect = async (justChecking: boolean) => {
     const provider = new WalletConnectProvider({
-      infuraId: "6652e2b820d540eb8e855da9757c08f4",
+      infuraId: INFURA_ID,
     });
     try {
       const walletConnectStorage = localStorage.getItem(

@@ -13,6 +13,11 @@ npm install react-dapp-web3
 
 # Usage
 
+### InfuraId for WalletConnect
+
+WalletConnect needs the InfuraId. Create a .env file in your project and add the following
+enviroment variable `REACT_APP_INFURA_ID=<your-infuraid>`.
+
 ### Import ContextProvider for wrapping your app
 
 ```
