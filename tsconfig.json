@@ -1,13 +1,15 @@
 {
   "extends": "@tsconfig/recommended/tsconfig.json",
   "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs",
-    "jsx": "react-jsx",
     "declaration": true,
-    "outDir": "dist",
+    "declarationDir": "./lib",
+    "module": "es6",
+    "noImplicitAny": true,
+    "outDir": "lib",
+    "target": "es5",
+    "jsx": "react-jsx",
     "strict": true
   },
-  "include": ["./src/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "lib"]
 }
