@@ -8,7 +8,6 @@ import TestComponent from "./TestComponent";
 //Run command: NODE_OPTIONS=--unhandled-rejections=warn yarn test
 beforeEach(() => {
   jest.resetModules();
-
   //process.env = Object.assign(process.env, {
   //REACT_APP_INFURA_ID: "6652e2b820d540eb8e855da9757c08f4",
   //});
