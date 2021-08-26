@@ -1,18 +1,6 @@
 import { ComponentType, ReactElement } from "react";
+import { IWithWeb3 } from "../types/types";
 import useWeb3 from "../hooks/useWeb3";
-import Web3 from "web3";
-
-export type IWithWeb3 = {
-  web3Data: {
-    isWalletConnected: boolean;
-    walletAddress: string;
-    signature: string;
-    web3: Web3 | null;
-    connect: () => void;
-    disconnect: () => void;
-    signMessage: (message: string) => void;
-  };
-};
 
 const withWeb3 =
   <T extends IWithWeb3 = IWithWeb3>(WrappedComponent: ComponentType<T>) =>

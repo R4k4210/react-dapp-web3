@@ -1,25 +1,10 @@
-import { useContext, useEffect, useState } from "react";
-import { Web3Context, EActionTypes } from "../context/Web3Context";
-import { INFURA_ID } from "../env";
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-
-export interface IUseWeb3 {
-  isWalletConnected: boolean;
-  walletAddress: string;
-  signature: string;
-  web3: Web3 | null;
-  connect: () => void;
-  disconnect: () => void;
-  signMessage: (message: string) => Promise<string>;
-}
-
-enum EProvider {
-  METAMASK = "metamask",
-  WALLETCONNECT = "walletconnect",
-}
-
-const SIGNATURE = "signature";
+import { useContext, useEffect, useState } from "react";
+import { Web3Context } from "../context/Web3Context";
+import { EActionTypes, EProvider } from "../enum/enums";
+import { INFURA_ID } from "../env";
+import { IUseWeb3 } from "../types/types";
 
 const useWeb3 = (): IUseWeb3 => {
   const { state, dispatch } = useContext(Web3Context);
@@ -31,7 +16,7 @@ const useWeb3 = (): IUseWeb3 => {
       let signatureStorage;
 
       try {
-        signatureStorage = localStorage.getItem(SIGNATURE) ?? "";
+        signatureStorage = localStorage.getItem(EProvider.SIGNATURE) ?? "";
 
         if (signatureStorage !== "") {
           dispatchAction(
@@ -71,7 +56,7 @@ const useWeb3 = (): IUseWeb3 => {
   const disconnect = () => {
     localStorage.removeItem(EProvider.WALLETCONNECT);
     localStorage.removeItem(EProvider.METAMASK);
-    localStorage.removeItem(SIGNATURE);
+    localStorage.removeItem(EProvider.SIGNATURE);
     dispatchAction(EActionTypes.DISCONNECT, null, "", "");
   };
 
@@ -117,7 +102,7 @@ const useWeb3 = (): IUseWeb3 => {
       walletAddress,
       ""
     );
-    localStorage.setItem(SIGNATURE, newSignature ?? "");
+    localStorage.setItem(EProvider.SIGNATURE, newSignature ?? "");
     dispatchAction(
       EActionTypes.SIGN_MESSAGE,
       web3,
