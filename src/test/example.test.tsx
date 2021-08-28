@@ -1,16 +1,21 @@
-import renderer from "react-test-renderer";
+import { renderHook, act } from "@testing-library/react-hooks";
 import ShallowRenderer from "react-test-renderer/shallow";
 import withWeb3 from "../hoc";
 import useWeb3 from "../hooks";
 import Web3 from "web3";
-import TestComponent from "./TestComponent";
+jest.mock("web3");
+
+const OLD_ENV = process.env;
 
 //Run command: NODE_OPTIONS=--unhandled-rejections=warn yarn test
 beforeEach(() => {
   jest.resetModules();
-  //process.env = Object.assign(process.env, {
-  //REACT_APP_INFURA_ID: "6652e2b820d540eb8e855da9757c08f4",
-  //});
+  process.env = { ...OLD_ENV };
+  delete process.env.REACT_APP_INFURA_ID;
+});
+
+afterEach(() => {
+  process.env = OLD_ENV;
 });
 
 describe("Render a component with props added by HOC", () => {
@@ -31,23 +36,20 @@ describe("Render a component with props added by HOC", () => {
   });
 });
 
-describe("Call useWeb3 hook", () => {
-  test("should be able to call connect function", () => {
-    jest.mock("../hooks"),
-      () => ({
-        useWeb3: () => ({
-          isWalletConnected: true,
-          walletAddress: "0xtest",
-          signature: "",
-          web3: new Web3(window.ethereum),
-          connect: jest.fn(),
-          disconnect: jest.fn(),
-          signMessage: jest.fn(),
-        }),
-      });
+describe("Testing useWeb3 custom hook", () => {
+  test("should have a valid walletaddress after connect", async () => {
+    process.env.REACT_APP_INFURA_ID = "6652e2b820d540eb8e855da9757c08f4";
 
-    const component = renderer.create(<TestComponent />);
-    const instanceComponent = component.toJSON();
-    console.log("instance", instanceComponent);
+    const mRes = ["0xtest"];
+    (Web3 as unknown as jest.Mock).eth.getAccounts.mockResolvedValueOnce(mRes);
+    //Web3.eth.getAccounts.mockReturnValueOnce(["0xtest"]);
+    const { result } = renderHook(() => useWeb3());
+
+    act(() => {
+      result.current.connect();
+    });
+
+    expect(typeof result.current.connect).toBe("function");
+    console.log("result", result.current);
   });
 });
