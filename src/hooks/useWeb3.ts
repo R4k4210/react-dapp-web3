@@ -47,7 +47,7 @@ const useWeb3 = (): IUseWeb3 => {
 
   const connect = async (): Promise<void> => {
     if (window.ethereum) {
-      await window.ethereum.enable();
+      await window.ethereum.request({ method: "eth_requestAccounts" });
       await instanceMetamask();
       return;
     }
@@ -81,7 +81,7 @@ const useWeb3 = (): IUseWeb3 => {
         EProvider.WALLETCONNECT
       );
       if (walletConnectStorage || !justChecking) {
-        await provider.enable();
+        await provider.request({ method: "eth_requestAccounts" });
       }
     } catch (error) {
       return;
