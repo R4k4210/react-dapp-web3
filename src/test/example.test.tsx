@@ -40,14 +40,22 @@ describe("Testing useWeb3 custom hook", () => {
   test("should have a valid walletaddress after connect", async () => {
     process.env.REACT_APP_INFURA_ID = "6652e2b820d540eb8e855da9757c08f4";
 
-    window.ethereum = jest
-      .fn()
-      .mockReturnValue({ ethereum: { enable: jest.fn() } });
+    const mockRequestEthAccounts = jest.fn().mockImplementation(() => {
+      return ["0xtest"];
+    });
+
+    window.ethereum = {
+      request: jest
+        .fn({ method: "eth_requestAccounts" } as any)
+        .mockImplementation(mockRequestEthAccounts),
+    };
+
+    console.log("wineth", window.ethereum);
 
     const mRes = ["0xtest"];
     const web3 = new Web3(window.ethereum);
-    web3.eth.getAccounts();
-    console.log("web3", web3);
+    const account = await web3.eth.getAccounts();
+    console.log("web3", account);
 
     const { result } = renderHook(() => useWeb3());
 

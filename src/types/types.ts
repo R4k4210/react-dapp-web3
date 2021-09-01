@@ -27,6 +27,7 @@ export interface IWeb3Context {
   web3: null | Web3;
   walletAddress: string;
   signature: string;
+  walletProvider: string;
 }
 
 export type TAction = {
