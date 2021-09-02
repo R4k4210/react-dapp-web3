@@ -1,19 +1,14 @@
-import {
-  Web3Context,
-  Web3ContextProvider,
-  EActionTypes,
-  TAction,
-} from "./context";
-import withWeb3, { IWithWeb3 } from "./hoc";
-import useWeb3, { IUseWeb3 } from "./hooks";
+import { Web3Context, Web3ContextProvider } from "./context";
+import withWeb3 from "./hoc";
+import useWeb3 from "./hooks";
+import { IUseWeb3, IWithWeb3, IWeb3Context } from "./types/types";
 
 export {
   withWeb3,
   useWeb3,
   Web3Context,
   Web3ContextProvider,
-  TAction,
-  EActionTypes,
   IUseWeb3,
   IWithWeb3,
+  IWeb3Context,
 };
