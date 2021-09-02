@@ -81,7 +81,7 @@ const Navbar = (): JSX.Element => {
 
 ### All types are in [types](https://github.com/R4k4210/react-dapp-web3/blob/main/src/types/types.ts) folder.
 
-# Local Storage
+# LocalStorage
 
 ### Metamask, WalletConnect and Signature
 

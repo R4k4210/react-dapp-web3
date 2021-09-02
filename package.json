@@ -20,6 +20,10 @@
     "test": "jest",
     "build": "rollup -c",
     "watch": "rollup -cw",
+    "lint": "eslint . --ext .tsx",
+    "lint-and-fix": "eslint . --ext .tsx --fix",
+    "prettier-format": "prettier --write src/**/*.{tsx,ts,js}",
+    "prettier-check": "prettier --check src/**/*.{tsx,ts,js}",
     "prepublish": "yarn build"
   },
   "jest": {
@@ -64,6 +68,8 @@
     "eslint": "^7.32.0",
     "eslint-plugin-react": "^7.24.0",
     "eslint-plugin-react-hooks": "^4.2.0",
+    "@typescript-eslint/parser": "^4.24.0",
+    "@typescript-eslint/eslint-plugin": "^4.24.0",
     "jest": "^27.0.6",
     "prettier": "^2.3.2",
     "react": "^17.0.2",

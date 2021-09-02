@@ -5,25 +5,25 @@
 let mockWeb3EthContract = function () {};
 
 function __setMockContract(mock: any) {
-  mockWeb3EthContract = mock;
+    mockWeb3EthContract = mock;
 }
 
 let blockNumber = 0;
 function __setBlockNumber(number: number) {
-  blockNumber = number;
+    blockNumber = number;
 }
 
-var eth = {
-  Contract: jest.fn().mockImplementation(() => mockWeb3EthContract),
-  getBlockNumber: () => blockNumber,
-  getAccounts: jest.fn().mockReturnValue(["0xtest"]),
+const eth = {
+    Contract: jest.fn().mockImplementation(() => mockWeb3EthContract),
+    getBlockNumber: () => blockNumber,
+    getAccounts: jest.fn().mockReturnValue(["0xtest"]),
 };
 
-var web3 = function (provider: any) {
-  return {
-    provider: provider,
-    eth: eth,
-  };
+const web3 = function (provider: any) {
+    return {
+        provider: provider,
+        eth: eth,
+    };
 };
 
 module.exports = web3;
