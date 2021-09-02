@@ -1,0 +1,13 @@
+name: Code Checks
+on: [push]
+jobs:
+  check-eslint-prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+      - run: yarn install
+      - name: Check lint
+        run: yarn lint
+      - name: Check prettier
+        run: yarn prettier-check
