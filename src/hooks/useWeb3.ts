@@ -8,7 +8,7 @@ import { IUseWeb3 } from "../types/types";
 
 const useWeb3 = (): IUseWeb3 => {
   const { state, dispatch } = useContext(Web3Context);
-  const { walletAddress, web3, signature, walletProvider } = state;
+  const { walletAddress, web3, signature } = state;
   const [isWalletConnected, setIsWalletConnected] = useState(false);
 
   useEffect(() => {
