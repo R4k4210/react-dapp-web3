@@ -13,25 +13,6 @@ const useWeb3 = (): IUseWeb3 => {
 
   useEffect(() => {
     const checkConnection = async () => {
-      let signatureStorage;
-
-      try {
-        signatureStorage =
-          localStorage.getItem(EProvider.SIGNATURE) ?? EProvider.NONE;
-
-        if (signatureStorage !== EProvider.NONE) {
-          dispatchAction(
-            EActionTypes.SIGN_MESSAGE,
-            web3,
-            walletAddress,
-            signatureStorage,
-            walletProvider
-          );
-        }
-      } catch (error) {
-        console.error("Unable to get signature from localStorage", error);
-      }
-
       const metamaskStorage = localStorage.getItem(EProvider.METAMASK) ?? null;
       if (window.ethereum && metamaskStorage) {
         await instanceMetamask();
@@ -42,6 +23,26 @@ const useWeb3 = (): IUseWeb3 => {
 
     checkConnection();
   }, []);
+
+  useEffect(() => {
+    let signatureStorage;
+
+    try {
+      signatureStorage = localStorage.getItem(EProvider.SIGNATURE) ?? null;
+
+      if (signatureStorage) {
+        dispatchAction(
+          EActionTypes.SIGN_MESSAGE,
+          null,
+          EProvider.NONE,
+          signatureStorage,
+          EProvider.NONE
+        );
+      }
+    } catch (error) {
+      console.error("Unable to get signature from localStorage", error);
+    }
+  }, [signature]);
 
   useEffect(() => {
     setIsWalletConnected(walletAddress ? true : false);
@@ -55,6 +56,7 @@ const useWeb3 = (): IUseWeb3 => {
     }
     await instanceWalletConnect(false);
   };
+
   const disconnect = () => {
     dispatchAction(
       EActionTypes.DISCONNECT,
@@ -69,16 +71,23 @@ const useWeb3 = (): IUseWeb3 => {
     registerProviderEvents(window.ethereum);
     const web3: Web3 = setupWeb3(window.ethereum);
     const walletAddress = await getWalletAddress(web3);
-    try {
-      localStorage.setItem(EProvider.METAMASK, walletAddress);
-    } catch (error) {
+
+    if (!walletAddress) {
+      dispatchAction(
+        EActionTypes.BLOCK,
+        null,
+        EProvider.NONE,
+        EProvider.NONE,
+        EProvider.NONE
+      );
       return;
     }
+
     dispatchAction(
       EActionTypes.CONNECT,
       web3,
       walletAddress,
-      EProvider.NONE,
+      signature,
       EProvider.METAMASK
     );
   };
@@ -117,17 +126,22 @@ const useWeb3 = (): IUseWeb3 => {
       return EProvider.NONE;
     }
 
+    if (signature) {
+      return signature;
+    }
+
     const newSignature = await web3?.eth.personal.sign(
       message,
       walletAddress,
       EProvider.NONE
     );
+
     dispatchAction(
       EActionTypes.SIGN_MESSAGE,
-      web3,
-      walletAddress,
+      null,
+      EProvider.NONE,
       newSignature,
-      walletProvider
+      EProvider.NONE
     );
 
     return newSignature;
@@ -142,15 +156,21 @@ const useWeb3 = (): IUseWeb3 => {
       const web3: Web3 = new Web3(web3Provider);
       const newWalletAddress = await getWalletAddress(web3);
       if (!newWalletAddress) {
-        disconnect();
+        dispatchAction(
+          EActionTypes.BLOCK,
+          null,
+          EProvider.NONE,
+          EProvider.NONE,
+          EProvider.NONE
+        );
         return;
       }
 
       dispatchAction(
         EActionTypes.WALLET_CHANGED,
-        web3,
+        null,
         newWalletAddress,
-        signature,
+        EProvider.NONE,
         window.ethereum ? EProvider.METAMASK : EProvider.WALLETCONNECT
       );
     });

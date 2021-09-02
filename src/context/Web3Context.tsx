@@ -37,16 +37,17 @@ const web3Reducer = (state: IWeb3Context, action: TAction): IWeb3Context => {
         ...state,
         web3,
         walletAddress,
+        signature,
         walletProvider,
       };
-    case EActionTypes.DISCONNECT:
-      cleanLocalStorage();
-      return initialState;
     case EActionTypes.WALLET_CHANGED:
+      cleanSignature();
       setLocalStorage(walletProvider, walletAddress);
       return {
         ...state,
         walletAddress,
+        signature,
+        walletProvider,
       };
     case EActionTypes.SIGN_MESSAGE:
       setLocalStorage(EProvider.SIGNATURE, signature);
@@ -54,6 +55,12 @@ const web3Reducer = (state: IWeb3Context, action: TAction): IWeb3Context => {
         ...state,
         signature,
       };
+    case EActionTypes.BLOCK:
+      return initialState;
+    case EActionTypes.DISCONNECT:
+      cleanLocalStorage();
+      cleanSignature();
+      return initialState;
     default:
       return state;
   }
@@ -61,11 +68,18 @@ const web3Reducer = (state: IWeb3Context, action: TAction): IWeb3Context => {
 
 const cleanLocalStorage = () => {
   try {
-    localStorage.removeItem(EProvider.SIGNATURE);
     localStorage.removeItem(EProvider.METAMASK);
     localStorage.removeItem(EProvider.WALLETCONNECT);
   } catch (error) {
     console.error("Error trying to clean localStorage", error);
+  }
+};
+
+const cleanSignature = () => {
+  try {
+    localStorage.removeItem(EProvider.SIGNATURE);
+  } catch (error) {
+    console.error("Error trying to remove localStorage value");
   }
 };
 
