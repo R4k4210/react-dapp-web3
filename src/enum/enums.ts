@@ -3,18 +3,17 @@ export enum EActionTypes {
     DISCONNECT = "DISCONNECT",
     BLOCK = "BLOCK",
     WALLET_CHANGED = "WALLET_CHANGED",
-    SIGN_MESSAGE = "SIGN_MESSAGE",
 }
 
-export enum EProvider {
-    METAMASK = "rdw_metamask",
-    WALLETCONNECT = "rdw_walletconnect",
-    SIGNATURE = "rdw_signature",
-    NONE = "",
-}
+export const EMPTY = "";
 
 export enum EProviderEvents {
     DISCONNECT = "disconnect",
     ACCOUNTS_CHANGED = "accountsChanged",
     CHAIN_CHANGED = "chainChanged",
+}
+
+export enum EErrors {
+    WEB3_INSTANCE = "Web3 is not initialized",
+    WALLET_ADDRESS = "Wallet address is empty",
 }

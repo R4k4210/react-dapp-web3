@@ -5,7 +5,7 @@ import useWeb3 from "../hooks/useWeb3";
 const withWeb3 =
     <T extends IWithWeb3 = IWithWeb3>(WrappedComponent: ComponentType<T>) =>
     (props: Omit<T, keyof IWithWeb3>): ReactElement => {
-        const { isWalletConnected, walletAddress, signature, web3, connect, disconnect, signMessage } = useWeb3();
+        const { isWalletConnected, walletAddress, web3, connect, disconnect, signMessage } = useWeb3();
 
         const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component";
         WrappedComponent.displayName = `WithWeb3(${displayName})`;
@@ -16,7 +16,6 @@ const withWeb3 =
                 web3Data={{
                     isWalletConnected,
                     walletAddress,
-                    signature,
                     web3,
                     connect,
                     disconnect,
