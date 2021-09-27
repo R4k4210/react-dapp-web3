@@ -3,6 +3,7 @@ export enum EActionTypes {
     DISCONNECT = "DISCONNECT",
     BLOCK = "BLOCK",
     WALLET_CHANGED = "WALLET_CHANGED",
+    CHAIN_CHANGED = "CHAIN_CHANGED",
 }
 
 export const EMPTY = "";

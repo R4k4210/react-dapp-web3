@@ -2,7 +2,7 @@ import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { useContext, useEffect, useState } from "react";
 import { Web3Context } from "../context/Web3Context";
-import { EActionTypes, EErrors, EProvider, EProviderEvents } from "../enum/enums";
+import { EActionTypes, EErrors, EMPTY, EProviderEvents } from "../enum/enums";
 import { INFURA_ID } from "../env";
 import { IUseWeb3 } from "../types/types";
 
@@ -40,35 +40,36 @@ const useWeb3 = (): IUseWeb3 => {
     };
 
     /**
-     * This is a "fake" disconnect, cleans the contexts variables
+     * This is a "fake" disconnect, only cleans contexts variables
      */
-    const disconnect = () => {
-        dispatchAction(EActionTypes.DISCONNECT, null, EProvider.NONE, EProvider.NONE);
+    const disconnect = (): void => {
+        dispatchAction(EActionTypes.DISCONNECT, null, EMPTY, 0);
     };
 
     /**
      * If Metamask is installed on browser, is used as a provider
      * Web3 is initialized as well
      */
-    const instanceMetamask = async () => {
+    const instanceMetamask = async (): Promise<void> => {
         const provider = window.ethereum;
         registerProviderEvents(provider);
         const web3: Web3 = setupWeb3(provider);
         const walletAddress = await getWalletAddress(web3);
+        const chainId = await getChainId(web3);
 
         if (!walletAddress) {
-            dispatchAction(EActionTypes.BLOCK, null, EProvider.NONE, EProvider.NONE);
+            dispatchAction(EActionTypes.BLOCK, null, EMPTY, 0);
             return;
         }
 
-        dispatchAction(EActionTypes.CONNECT, web3, walletAddress, EProvider.METAMASK);
+        dispatchAction(EActionTypes.CONNECT, web3, walletAddress, chainId);
     };
 
     /**
-     * Instance WalletConnect as a provider
+     * Instance WalletConnect as a provider, setup web3, walletAddress and chainId
      * @param {boolean} justChecking - Handle connection after reloading page
      */
-    const instanceWalletConnect = async (justChecking: boolean) => {
+    const instanceWalletConnect = async (justChecking: boolean): Promise<void> => {
         const provider = new WalletConnectProvider({
             infuraId: INFURA_ID,
         });
@@ -87,11 +88,25 @@ const useWeb3 = (): IUseWeb3 => {
         }
 
         const walletAddress = await getWalletAddress(web3);
-        dispatchAction(EActionTypes.CONNECT, web3, walletAddress, EProvider.WALLETCONNECT);
+        const chainId = await getChainId(web3);
+
+        dispatchAction(EActionTypes.CONNECT, web3, walletAddress, chainId);
     };
 
+    /**
+     * CHeck if wallet has permission to connect without popping up modal
+     * @param {Web3} web3 - Web3 instance
+     * @return {boolean}
+     */
     const hasPermissionToConnect = (web3: Web3): boolean =>
         web3.currentProvider && (web3 as any)._provider.wc && (web3 as any)._provider.wc._accounts.length !== 0;
+
+    /**
+     * Get the chaindId configured on wallet
+     * @param {Web3} web3 - Web3 instance
+     * @return {number} chainId
+     */
+    const getChainId = async (web3: Web3): Promise<number> => await web3.eth.getChainId();
 
     const signMessage = async (message: string): Promise<string> => {
         if (!web3) {
@@ -101,10 +116,15 @@ const useWeb3 = (): IUseWeb3 => {
             throw new Error(EErrors.WALLET_ADDRESS);
         }
 
-        const newSignature = await web3?.eth.personal.sign(message, walletAddress, EProvider.NONE);
+        const newSignature = await web3?.eth.personal.sign(message, walletAddress, EMPTY);
         return newSignature;
     };
 
+    /**
+     * Register all provider event:
+     * disconnect, accountsChanged and chainChanged
+     * @param {Web3["givenProvider"]} web3Provider - provider instace
+     */
     const registerProviderEvents = (web3Provider: Web3["givenProvider"]) => {
         web3Provider.on(EProviderEvents.DISCONNECT, () => {
             disconnect();
@@ -114,36 +134,50 @@ const useWeb3 = (): IUseWeb3 => {
             const web3: Web3 = new Web3(web3Provider);
             const newWalletAddress = await getWalletAddress(web3);
             if (!newWalletAddress) {
-                dispatchAction(EActionTypes.BLOCK, null, EProvider.NONE, EProvider.NONE);
+                dispatchAction(EActionTypes.BLOCK, null, EMPTY, 0);
                 return;
             }
 
-            dispatchAction(
-                EActionTypes.WALLET_CHANGED,
-                null,
-                newWalletAddress,
-                window.ethereum ? EProvider.METAMASK : EProvider.WALLETCONNECT
-            );
+            dispatchAction(EActionTypes.WALLET_CHANGED, null, newWalletAddress, 0);
         });
 
-        web3Provider.on(EProviderEvents.CHAIN_CHANGED, () => {
-            disconnect();
+        web3Provider.on(EProviderEvents.CHAIN_CHANGED, (chainId: string) => {
+            const newChainId = parseInt(chainId, 16);
+            dispatchAction(EActionTypes.CHAIN_CHANGED, null, EMPTY, newChainId);
+            disconnect(); //Need to test if this is necessary
             window.location.reload();
         });
     };
 
-    const getWalletAddress = async (web3: Web3) => {
+    /**
+     * Get first wallet address
+     * @param {Web3} web3 - Web3 instance
+     * @return {Promise<string>} walletAddress
+     */
+    const getWalletAddress = async (web3: Web3): Promise<string> => {
         return (await web3.eth.getAccounts())[0];
     };
 
+    /**
+     * Return the Web3 instance with the given provider
+     * @param {Web3["givenProvider"]} web3Provider - provider instance
+     * @return {Web3} Web3 instance
+     */
     const setupWeb3 = (provider: Web3["givenProvider"]): Web3 => {
         return new Web3(provider);
     };
 
-    const dispatchAction = (type: EActionTypes, web3: Web3 | null, walletAddress: string, walletProvider: string) =>
+    /**
+     * Dispatch new action and update the context
+     * @param {EActionTypes} type - The action to dispatch
+     * @param {Web3} web3 - Web3 instance
+     * @param {string} walletAddress - user wallet address
+     * @param {number} chainId - chain id
+     */
+    const dispatchAction = (type: EActionTypes, web3: Web3 | null, walletAddress: string, chainId: number): void =>
         dispatch({
             type: type,
-            payload: { web3, walletAddress, walletProvider },
+            payload: { web3, walletAddress, chainId },
         });
 
     return {

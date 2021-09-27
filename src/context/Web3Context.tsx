@@ -1,6 +1,6 @@
 import { createContext, Dispatch, ReactNode, useReducer } from "react";
 import { IWeb3Context, TAction } from "../types/types";
-import { EActionTypes, EProvider } from "../enum/enums";
+import { EActionTypes, EMPTY } from "../enum/enums";
 
 declare global {
     interface Window {
@@ -10,7 +10,8 @@ declare global {
 
 const initialState: IWeb3Context = {
     web3: null,
-    walletAddress: EProvider.NONE,
+    walletAddress: EMPTY,
+    chainId: 0,
 };
 
 export const Web3Context = createContext<{
@@ -24,7 +25,7 @@ export const Web3Context = createContext<{
 const web3Reducer = (state: IWeb3Context, action: TAction): IWeb3Context => {
     const {
         type,
-        payload: { web3, walletAddress },
+        payload: { web3, walletAddress, chainId },
     } = action;
 
     switch (type) {
@@ -33,11 +34,17 @@ const web3Reducer = (state: IWeb3Context, action: TAction): IWeb3Context => {
                 ...state,
                 web3,
                 walletAddress,
+                chainId,
             };
         case EActionTypes.WALLET_CHANGED:
             return {
                 ...state,
                 walletAddress,
+            };
+        case EActionTypes.CHAIN_CHANGED:
+            return {
+                ...state,
+                chainId,
             };
         case EActionTypes.BLOCK:
             return initialState;
