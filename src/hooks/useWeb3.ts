@@ -2,19 +2,18 @@ import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { useContext, useEffect, useState } from "react";
 import { Web3Context } from "../context/Web3Context";
-import { EActionTypes, EProvider, EProviderEvents } from "../enum/enums";
+import { EActionTypes, EErrors, EMPTY, EProviderEvents } from "../enum/enums";
 import { INFURA_ID } from "../env";
 import { IUseWeb3 } from "../types/types";
 
 const useWeb3 = (): IUseWeb3 => {
     const { state, dispatch } = useContext(Web3Context);
-    const { walletAddress, web3, signature } = state;
+    const { walletAddress, web3, provider, chainId } = state;
     const [isWalletConnected, setIsWalletConnected] = useState(false);
 
     useEffect(() => {
         const checkConnection = async () => {
-            const metamaskStorage = localStorage.getItem(EProvider.METAMASK) ?? null;
-            if (window.ethereum && metamaskStorage) {
+            if (window.ethereum) {
                 await instanceMetamask();
                 return;
             }
@@ -25,23 +24,12 @@ const useWeb3 = (): IUseWeb3 => {
     }, []);
 
     useEffect(() => {
-        let signatureStorage;
-
-        try {
-            signatureStorage = localStorage.getItem(EProvider.SIGNATURE) ?? null;
-
-            if (signatureStorage) {
-                dispatchAction(EActionTypes.SIGN_MESSAGE, null, EProvider.NONE, signatureStorage, EProvider.NONE);
-            }
-        } catch (error) {
-            console.error("Unable to get signature from localStorage", error);
-        }
-    }, [signature]);
-
-    useEffect(() => {
         setIsWalletConnected(walletAddress ? true : false);
     }, [walletAddress]);
 
+    /**
+     * Start connection with provider
+     */
     const connect = async (): Promise<void> => {
         if (window.ethereum) {
             await window.ethereum.request({ method: "eth_requestAccounts" });
@@ -51,60 +39,119 @@ const useWeb3 = (): IUseWeb3 => {
         await instanceWalletConnect(false);
     };
 
-    const disconnect = () => {
-        dispatchAction(EActionTypes.DISCONNECT, null, EProvider.NONE, EProvider.NONE, EProvider.NONE);
-    };
-
-    const instanceMetamask = async () => {
-        registerProviderEvents(window.ethereum);
-        const web3: Web3 = setupWeb3(window.ethereum);
-        const walletAddress = await getWalletAddress(web3);
-
-        if (!walletAddress) {
-            dispatchAction(EActionTypes.BLOCK, null, EProvider.NONE, EProvider.NONE, EProvider.NONE);
+    /**
+     * This is a "fake" disconnect, only cleans contexts variables
+     */
+    const disconnect = async (): Promise<void> => {
+        if (window.ethereum) {
+            console.error(EErrors.WC_DISCONNECT);
             return;
         }
 
-        dispatchAction(EActionTypes.CONNECT, web3, walletAddress, signature, EProvider.METAMASK);
+        if (provider) {
+            await provider.disconnect();
+        }
+
+        dispatchAction(EActionTypes.DISCONNECT, null, null, EMPTY, 0);
     };
 
-    const instanceWalletConnect = async (justChecking: boolean) => {
-        const provider = new WalletConnectProvider({
+    /**
+     * If Metamask is installed on browser, is used as a provider
+     * Web3 is initialized as well
+     */
+    const instanceMetamask = async (): Promise<void> => {
+        const mkprovider = window.ethereum;
+        registerProviderEvents(mkprovider);
+        const web3: Web3 = setupWeb3(mkprovider);
+        const walletAddress = await getWalletAddress(web3);
+        const chainId = await getChainId(web3);
+
+        if (!walletAddress) {
+            dispatchAction(EActionTypes.BLOCK, null, null, EMPTY, 0);
+            return;
+        }
+
+        dispatchAction(EActionTypes.CONNECT, web3, mkprovider, walletAddress, chainId);
+    };
+
+    /**
+     * Instance WalletConnect as a provider, setup web3, walletAddress and chainId
+     * @param {boolean} justChecking - Handle connection after reloading page
+     */
+    const instanceWalletConnect = async (checkingConnection: boolean): Promise<void> => {
+        const wcprovider = new WalletConnectProvider({
             infuraId: INFURA_ID,
         });
 
-        try {
-            const walletConnectStorage = localStorage.getItem(EProvider.WALLETCONNECT);
-            if (walletConnectStorage || !justChecking) {
-                await provider.enable();
+        registerProviderEvents(wcprovider);
+        const web3: Web3 = setupWeb3(wcprovider);
+
+        if (checkingConnection && hasPermissionToConnect(web3)) {
+            try {
+                await wcprovider.enable();
+            } catch (error) {
+                console.error(error);
             }
-        } catch (error) {
-            console.error("Unable to get value from localStorage", error);
+        }
+
+        if (!checkingConnection) {
+            try {
+                await wcprovider.enable();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        const walletAddress = await getWalletAddress(web3);
+        const chainId = await getChainId(web3);
+
+        if (!walletAddress) {
+            dispatchAction(EActionTypes.BLOCK, null, null, EMPTY, 0);
             return;
         }
 
-        registerProviderEvents(provider);
-        const web3: Web3 = setupWeb3(provider);
-        const walletAddress = await getWalletAddress(web3);
-        dispatchAction(EActionTypes.CONNECT, web3, walletAddress, signature, EProvider.WALLETCONNECT);
+        dispatchAction(EActionTypes.CONNECT, web3, wcprovider, walletAddress, chainId);
     };
 
+    //(web3 as any)._provider.wc._accounts.length !== 0
+
+    /**
+     * CHeck if wallet has permission to connect without popping up modal
+     * @param {Web3} web3 - Web3 instance
+     * @return {boolean}
+     */
+    const hasPermissionToConnect = (web3: Web3): boolean =>
+        web3.currentProvider && (web3 as any)._provider.wc && (web3 as any)._provider.wc._accounts.length !== 0;
+
+    /**
+     * Get the chaindId configured on wallet
+     * @param {Web3} web3 - Web3 instance
+     * @return {number} chainId
+     */
+    const getChainId = async (web3: Web3): Promise<number> => await web3.eth.getChainId();
+
+    /**
+     * Get the chaindId configured on wallet
+     * @param {string} message - Message to sign
+     * @return {string} signed message
+     */
     const signMessage = async (message: string): Promise<string> => {
-        if (!web3 || !walletAddress) {
-            return EProvider.NONE;
+        if (!web3) {
+            throw new Error(EErrors.WEB3_INSTANCE);
+        }
+        if (!walletAddress) {
+            throw new Error(EErrors.WALLET_ADDRESS);
         }
 
-        if (signature) {
-            return signature;
-        }
-
-        const newSignature = await web3?.eth.personal.sign(message, walletAddress, EProvider.NONE);
-
-        dispatchAction(EActionTypes.SIGN_MESSAGE, null, EProvider.NONE, newSignature, EProvider.NONE);
-
+        const newSignature = await web3?.eth.personal.sign(message, walletAddress, EMPTY);
         return newSignature;
     };
 
+    /**
+     * Register all provider event:
+     * disconnect, accountsChanged and chainChanged
+     * @param {Web3["givenProvider"]} web3Provider - provider instace
+     */
     const registerProviderEvents = (web3Provider: Web3["givenProvider"]) => {
         web3Provider.on(EProviderEvents.DISCONNECT, () => {
             disconnect();
@@ -114,49 +161,62 @@ const useWeb3 = (): IUseWeb3 => {
             const web3: Web3 = new Web3(web3Provider);
             const newWalletAddress = await getWalletAddress(web3);
             if (!newWalletAddress) {
-                dispatchAction(EActionTypes.BLOCK, null, EProvider.NONE, EProvider.NONE, EProvider.NONE);
+                dispatchAction(EActionTypes.BLOCK, null, null, EMPTY, 0);
                 return;
             }
 
-            dispatchAction(
-                EActionTypes.WALLET_CHANGED,
-                null,
-                newWalletAddress,
-                EProvider.NONE,
-                window.ethereum ? EProvider.METAMASK : EProvider.WALLETCONNECT
-            );
+            dispatchAction(EActionTypes.WALLET_CHANGED, null, null, newWalletAddress, 0);
         });
 
-        web3Provider.on(EProviderEvents.CHAIN_CHANGED, () => {
-            disconnect();
+        web3Provider.on(EProviderEvents.CHAIN_CHANGED, (chainId: string) => {
+            const newChainId = parseInt(chainId, 16);
+            dispatchAction(EActionTypes.CHAIN_CHANGED, null, null, EMPTY, newChainId);
             window.location.reload();
         });
     };
 
-    const getWalletAddress = async (web3: Web3) => {
+    /**
+     * Get first wallet address
+     * @param {Web3} web3 - Web3 instance
+     * @return {Promise<string>} walletAddress
+     */
+    const getWalletAddress = async (web3: Web3): Promise<string> => {
         return (await web3.eth.getAccounts())[0];
     };
 
+    /**
+     * Return the Web3 instance with the given provider
+     * @param {Web3["givenProvider"]} web3Provider - provider instance
+     * @return {Web3} Web3 instance
+     */
     const setupWeb3 = (provider: Web3["givenProvider"]): Web3 => {
         return new Web3(provider);
     };
 
+    /**
+     * Dispatch new action and update the context
+     * @param {EActionTypes} type - The action to dispatch
+     * @param {Web3} web3 - Web3 instance
+     * @param {Web3["givenProvider"]} provider - provider instance
+     * @param {string} walletAddress - user wallet address
+     * @param {number} chainId - chain id
+     */
     const dispatchAction = (
         type: EActionTypes,
         web3: Web3 | null,
+        provider: Web3["givenProvider"],
         walletAddress: string,
-        signature: string,
-        walletProvider: string
-    ) =>
+        chainId: number
+    ): void =>
         dispatch({
             type: type,
-            payload: { web3, walletAddress, signature, walletProvider },
+            payload: { web3, provider, walletAddress, chainId },
         });
 
     return {
         isWalletConnected,
         walletAddress,
-        signature,
+        chainId,
         web3,
         connect,
         disconnect,
