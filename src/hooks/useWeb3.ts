@@ -171,7 +171,6 @@ const useWeb3 = (): IUseWeb3 => {
         web3Provider.on(EProviderEvents.CHAIN_CHANGED, (chainId: string) => {
             const newChainId = parseInt(chainId, 16);
             dispatchAction(EActionTypes.CHAIN_CHANGED, null, null, EMPTY, newChainId);
-            disconnect(); //Need to test if this is necessary
             window.location.reload();
         });
     };
