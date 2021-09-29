@@ -10,6 +10,7 @@ declare global {
 
 const initialState: IWeb3Context = {
     web3: null,
+    provider: null,
     walletAddress: EMPTY,
     chainId: 0,
 };
@@ -25,7 +26,7 @@ export const Web3Context = createContext<{
 const web3Reducer = (state: IWeb3Context, action: TAction): IWeb3Context => {
     const {
         type,
-        payload: { web3, walletAddress, chainId },
+        payload: { web3, provider, walletAddress, chainId },
     } = action;
 
     switch (type) {
@@ -33,6 +34,7 @@ const web3Reducer = (state: IWeb3Context, action: TAction): IWeb3Context => {
             return {
                 ...state,
                 web3,
+                provider,
                 walletAddress,
                 chainId,
             };

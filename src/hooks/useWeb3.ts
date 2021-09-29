@@ -8,7 +8,7 @@ import { IUseWeb3 } from "../types/types";
 
 const useWeb3 = (): IUseWeb3 => {
     const { state, dispatch } = useContext(Web3Context);
-    const { walletAddress, web3 } = state;
+    const { walletAddress, web3, provider, chainId } = state;
     const [isWalletConnected, setIsWalletConnected] = useState(false);
 
     useEffect(() => {
@@ -42,8 +42,17 @@ const useWeb3 = (): IUseWeb3 => {
     /**
      * This is a "fake" disconnect, only cleans contexts variables
      */
-    const disconnect = (): void => {
-        dispatchAction(EActionTypes.DISCONNECT, null, EMPTY, 0);
+    const disconnect = async (): Promise<void> => {
+        if (window.ethereum) {
+            console.error(EErrors.WC_DISCONNECT);
+            return;
+        }
+
+        if (provider) {
+            await provider.disconnect();
+        }
+
+        dispatchAction(EActionTypes.DISCONNECT, null, null, EMPTY, 0);
     };
 
     /**
@@ -51,47 +60,60 @@ const useWeb3 = (): IUseWeb3 => {
      * Web3 is initialized as well
      */
     const instanceMetamask = async (): Promise<void> => {
-        const provider = window.ethereum;
-        registerProviderEvents(provider);
-        const web3: Web3 = setupWeb3(provider);
+        const mkprovider = window.ethereum;
+        registerProviderEvents(mkprovider);
+        const web3: Web3 = setupWeb3(mkprovider);
         const walletAddress = await getWalletAddress(web3);
         const chainId = await getChainId(web3);
 
         if (!walletAddress) {
-            dispatchAction(EActionTypes.BLOCK, null, EMPTY, 0);
+            dispatchAction(EActionTypes.BLOCK, null, null, EMPTY, 0);
             return;
         }
 
-        dispatchAction(EActionTypes.CONNECT, web3, walletAddress, chainId);
+        dispatchAction(EActionTypes.CONNECT, web3, mkprovider, walletAddress, chainId);
     };
 
     /**
      * Instance WalletConnect as a provider, setup web3, walletAddress and chainId
      * @param {boolean} justChecking - Handle connection after reloading page
      */
-    const instanceWalletConnect = async (justChecking: boolean): Promise<void> => {
-        const provider = new WalletConnectProvider({
+    const instanceWalletConnect = async (checkingConnection: boolean): Promise<void> => {
+        const wcprovider = new WalletConnectProvider({
             infuraId: INFURA_ID,
         });
-        registerProviderEvents(provider);
-        const web3: Web3 = setupWeb3(provider);
 
-        if (hasPermissionToConnect(web3)) {
+        registerProviderEvents(wcprovider);
+        const web3: Web3 = setupWeb3(wcprovider);
+
+        if (checkingConnection && hasPermissionToConnect(web3)) {
             try {
-                if (!justChecking) {
-                    await provider.enable();
-                }
+                await wcprovider.enable();
             } catch (error) {
-                console.error("Unable to get value from localStorage", error);
-                return;
+                console.error(error);
+            }
+        }
+
+        if (!checkingConnection) {
+            try {
+                await wcprovider.enable();
+            } catch (error) {
+                console.error(error);
             }
         }
 
         const walletAddress = await getWalletAddress(web3);
         const chainId = await getChainId(web3);
 
-        dispatchAction(EActionTypes.CONNECT, web3, walletAddress, chainId);
+        if (!walletAddress) {
+            dispatchAction(EActionTypes.BLOCK, null, null, EMPTY, 0);
+            return;
+        }
+
+        dispatchAction(EActionTypes.CONNECT, web3, wcprovider, walletAddress, chainId);
     };
+
+    //(web3 as any)._provider.wc._accounts.length !== 0
 
     /**
      * CHeck if wallet has permission to connect without popping up modal
@@ -134,16 +156,16 @@ const useWeb3 = (): IUseWeb3 => {
             const web3: Web3 = new Web3(web3Provider);
             const newWalletAddress = await getWalletAddress(web3);
             if (!newWalletAddress) {
-                dispatchAction(EActionTypes.BLOCK, null, EMPTY, 0);
+                dispatchAction(EActionTypes.BLOCK, null, null, EMPTY, 0);
                 return;
             }
 
-            dispatchAction(EActionTypes.WALLET_CHANGED, null, newWalletAddress, 0);
+            dispatchAction(EActionTypes.WALLET_CHANGED, null, null, newWalletAddress, 0);
         });
 
         web3Provider.on(EProviderEvents.CHAIN_CHANGED, (chainId: string) => {
             const newChainId = parseInt(chainId, 16);
-            dispatchAction(EActionTypes.CHAIN_CHANGED, null, EMPTY, newChainId);
+            dispatchAction(EActionTypes.CHAIN_CHANGED, null, null, EMPTY, newChainId);
             disconnect(); //Need to test if this is necessary
             window.location.reload();
         });
@@ -171,18 +193,26 @@ const useWeb3 = (): IUseWeb3 => {
      * Dispatch new action and update the context
      * @param {EActionTypes} type - The action to dispatch
      * @param {Web3} web3 - Web3 instance
+     * @param {Web3["givenProvider"]} provider - provider instance
      * @param {string} walletAddress - user wallet address
      * @param {number} chainId - chain id
      */
-    const dispatchAction = (type: EActionTypes, web3: Web3 | null, walletAddress: string, chainId: number): void =>
+    const dispatchAction = (
+        type: EActionTypes,
+        web3: Web3 | null,
+        provider: Web3["givenProvider"],
+        walletAddress: string,
+        chainId: number
+    ): void =>
         dispatch({
             type: type,
-            payload: { web3, walletAddress, chainId },
+            payload: { web3, provider, walletAddress, chainId },
         });
 
     return {
         isWalletConnected,
         walletAddress,
+        chainId,
         web3,
         connect,
         disconnect,

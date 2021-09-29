@@ -4,6 +4,7 @@ import { EActionTypes } from "../enum/enums";
 export interface IUseWeb3 {
     isWalletConnected: boolean;
     walletAddress: string;
+    chainId: number;
     web3: Web3 | null;
     connect: () => void;
     disconnect: () => void;
@@ -14,16 +15,17 @@ export type IWithWeb3 = {
     web3Data: {
         isWalletConnected: boolean;
         walletAddress: string;
-        signature: string;
+        chainId: number;
         web3: Web3 | null;
         connect: () => void;
         disconnect: () => void;
-        signMessage: (message: string) => void;
+        signMessage: (message: string) => Promise<string>;
     };
 };
 
 export interface IWeb3Context {
     web3: null | Web3;
+    provider: null | Web3["givenProvider"];
     walletAddress: string;
     chainId: number;
 }
