@@ -130,6 +130,11 @@ const useWeb3 = (): IUseWeb3 => {
      */
     const getChainId = async (web3: Web3): Promise<number> => await web3.eth.getChainId();
 
+    /**
+     * Get the chaindId configured on wallet
+     * @param {string} message - Message to sign
+     * @return {string} signed message
+     */
     const signMessage = async (message: string): Promise<string> => {
         if (!web3) {
             throw new Error(EErrors.WEB3_INSTANCE);
