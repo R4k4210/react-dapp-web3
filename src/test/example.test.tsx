@@ -7,11 +7,15 @@ jest.mock("web3");
 
 const OLD_ENV = process.env;
 
+const localStorageMock: { [key: string]: string } = { rdw_metamask: "1" };
+
 //Run command: NODE_OPTIONS=--unhandled-rejections=warn yarn test
 beforeEach(() => {
     jest.resetModules();
     process.env = { ...OLD_ENV };
     delete process.env.REACT_APP_INFURA_ID;
+
+    global.Storage.prototype.getItem = jest.fn((key) => localStorageMock[key] ?? null); // mock localStorage
 });
 
 afterEach(() => {
@@ -46,6 +50,7 @@ describe("Testing useWeb3 custom hook", () => {
 
         window.ethereum = {
             request: jest.fn({ method: "eth_requestAccounts" } as any).mockImplementation(mockRequestEthAccounts),
+            on: jest.fn(),
         };
 
         console.log("wineth", window.ethereum);
