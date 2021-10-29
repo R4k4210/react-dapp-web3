@@ -2,8 +2,8 @@
 
 `react-dapp-web3` is a simply library for handling Metamask and WalletConnect providers
 and make the use of Web3 easier through the application.
-The library put at disposal the following methods: `connect()`, `disconnect()` and `signMessage(msgToSign)`.
-You can also access to `isWalletConnected: boolean`, `walletAddress: string`, `signature: string` and `web3` instance for Smart Contract communication.
+The library put at disposal the following methods: `connect()`, `disconnect()` -WalletConnect only- and `signMessage(msgToSign)`.
+You can also access to `isWalletConnected: boolean`, `walletAddress: string, chainId: number` and `web3` instance for Smart Contract communication.
 
 ## Installation
 
@@ -62,7 +62,7 @@ export default Layout;
 import { IWithWeb3 } from "react-dapp-web3";
 
 const Navbar = ({ web3Data }: IWithWeb3): JSX.Element => {
-    const { isWalletConnected, walletAddress, signature, web3, connect, disconnect, signMessage } = web3Data;
+    const { isWalletConnected, walletAddress, chainId, web3, connect, disconnect, signMessage } = web3Data;
     ...
 ```
 
@@ -72,7 +72,7 @@ const Navbar = ({ web3Data }: IWithWeb3): JSX.Element => {
 import { useWeb3 } from "react-dapp-web3";
 
 const Navbar = (): JSX.Element => {
-    const { isWalletConnected, walletAddress, signature, web3, connect, disconnect, signMessage } = useWeb3();
+    const { isWalletConnected, walletAddress, chainId, web3, connect, disconnect, signMessage } = useWeb3();
     ...
 
 ```
@@ -83,7 +83,6 @@ const Navbar = (): JSX.Element => {
 
 # LocalStorage
 
-### Metamask, WalletConnect and Signature
-
-Selected wallet address and signature are stored in localStorage as `rdw_metamask`, `rdw_walletconnect` and `rdw_signature`.
-You will see the `walletconnect` key too, which is added by WalletConnect library by default.
+In the latest version of the package, the use of localStorage was deprecated to allow the developer
+to decide how to do it. In the same way, the signature is not saved in LS either.
+This changes allow the developer to handle addresses and signatures at ease.
