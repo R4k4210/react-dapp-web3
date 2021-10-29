@@ -28,7 +28,7 @@ const useWeb3 = (): IUseWeb3 => {
     }, [walletAddress]);
 
     /**
-     * Start connection with provider
+     * Initialize connection with provider
      */
     const connect = async (): Promise<void> => {
         if (window.ethereum) {
@@ -40,7 +40,8 @@ const useWeb3 = (): IUseWeb3 => {
     };
 
     /**
-     * This is a "fake" disconnect, only cleans contexts variables
+     * Disconnect only works with WalletConnect.
+     * The only way for Metamask disconnect is from browser extension
      */
     const disconnect = async (): Promise<void> => {
         if (window.ethereum) {
@@ -56,8 +57,9 @@ const useWeb3 = (): IUseWeb3 => {
     };
 
     /**
-     * If Metamask is installed on browser, is used as a provider
+     * If Metamask is installed on browser, it's used as a provider
      * Web3 is initialized as well
+     * Instance walletAddress and chainId
      */
     const instanceMetamask = async (): Promise<void> => {
         const mkprovider = window.ethereum;
@@ -113,10 +115,8 @@ const useWeb3 = (): IUseWeb3 => {
         dispatchAction(EActionTypes.CONNECT, web3, wcprovider, walletAddress, chainId);
     };
 
-    //(web3 as any)._provider.wc._accounts.length !== 0
-
     /**
-     * CHeck if wallet has permission to connect without popping up modal
+     * Check if wallet has permission to connect without popping up modal
      * @param {Web3} web3 - Web3 instance
      * @return {boolean}
      */
@@ -131,7 +131,7 @@ const useWeb3 = (): IUseWeb3 => {
     const getChainId = async (web3: Web3): Promise<number> => await web3.eth.getChainId();
 
     /**
-     * Get the chaindId configured on wallet
+     * Sign and return signed message
      * @param {string} message - Message to sign
      * @return {string} signed message
      */
@@ -149,7 +149,7 @@ const useWeb3 = (): IUseWeb3 => {
 
     /**
      * Register all provider event:
-     * disconnect, accountsChanged and chainChanged
+     * disconnect, accountsChanged and chainChanged (reload page if chainId changes)
      * @param {Web3["givenProvider"]} web3Provider - provider instace
      */
     const registerProviderEvents = (web3Provider: Web3["givenProvider"]) => {
@@ -176,7 +176,7 @@ const useWeb3 = (): IUseWeb3 => {
     };
 
     /**
-     * Get first wallet address
+     * Get selected wallet address
      * @param {Web3} web3 - Web3 instance
      * @return {Promise<string>} walletAddress
      */
@@ -194,7 +194,7 @@ const useWeb3 = (): IUseWeb3 => {
     };
 
     /**
-     * Dispatch new action and update the context
+     * Dispatch new actions and update the context
      * @param {EActionTypes} type - The action to dispatch
      * @param {Web3} web3 - Web3 instance
      * @param {Web3["givenProvider"]} provider - provider instance
