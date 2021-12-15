@@ -92,4 +92,5 @@ All suggestions to help improve this library are welcome.
 If you like the extension and you want to support the development - please consider to donate. Any donations are greatly appreciated :D !!
 
 **ERC20 - 0x3079c9aC68b629419213A864dc1899Ab4fC7246B**
+
 **BEP20 - 0xdc97501024f7022649c505bfd8d7c0a78ccdf593**
