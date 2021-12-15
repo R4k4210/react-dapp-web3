@@ -13,6 +13,7 @@ const initialState: IWeb3Context = {
     provider: null,
     walletAddress: EMPTY,
     chainId: 0,
+    isWalletConnected: false,
 };
 
 export const Web3Context = createContext<{
@@ -26,7 +27,7 @@ export const Web3Context = createContext<{
 const web3Reducer = (state: IWeb3Context, action: TAction): IWeb3Context => {
     const {
         type,
-        payload: { web3, provider, walletAddress, chainId },
+        payload: { web3, provider, walletAddress, chainId, isWalletConnected },
     } = action;
 
     switch (type) {
@@ -37,6 +38,7 @@ const web3Reducer = (state: IWeb3Context, action: TAction): IWeb3Context => {
                 provider,
                 walletAddress,
                 chainId,
+                isWalletConnected
             };
         case EActionTypes.WALLET_CHANGED:
             return {
