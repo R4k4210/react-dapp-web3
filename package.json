@@ -1,6 +1,6 @@
 {
     "name": "react-dapp-web3",
-    "version": "2.2.0",
+    "version": "2.2.1",
     "description": "Easy Web3, Metamask and WalletConnect integration package. HOC and custom hook to manage wallet address, connection and signature.",
     "url": "https://github.com/R4k4210/react-dapp-web3/issues",
     "keywords": [
