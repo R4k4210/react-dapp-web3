@@ -38,7 +38,7 @@ const web3Reducer = (state: IWeb3Context, action: TAction): IWeb3Context => {
                 provider,
                 walletAddress,
                 chainId,
-                isWalletConnected
+                isWalletConnected,
             };
         case EActionTypes.WALLET_CHANGED:
             return {
