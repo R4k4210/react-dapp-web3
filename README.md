@@ -3,7 +3,8 @@
 `react-dapp-web3` is a simply library for handling Metamask and WalletConnect providers
 and make the use of Web3 easier through the application.
 The library put at disposal the following methods: `connect()`, `disconnect()` -WalletConnect only- and `signMessage(msgToSign)`.
-You can also access to `isWalletConnected: boolean`, `walletAddress: string, chainId: number` and `web3` instance for Smart Contract communication.
+You can also access to `isWalletConnected: boolean`, `walletAddress: string}`, `chainId: number`,
+`isInitialized: boolean` and `web3` instance for Smart Contract communication.
 
 ## Installation
 
@@ -81,8 +82,14 @@ const Navbar = (): JSX.Element => {
 
 ### All types are in [types](https://github.com/R4k4210/react-dapp-web3/blob/main/src/types/types.ts) folder.
 
-# LocalStorage
+# Contribute
 
-In the latest version of the package, the use of localStorage was deprecated to allow the developer
-to decide how to do it. In the same way, the signature is not saved in LS either.
-This changes allow the developer to handle addresses and signatures at ease.
+Feel free to contribute.
+All suggestions to help improve this library are welcome.
+
+### Donations
+
+If you like the extension and you want to support the development - please consider to donate. Any donations are greatly appreciated :D !!
+
+**ERC20 - 0x3079c9aC68b629419213A864dc1899Ab4fC7246B**
+**BEP20 - 0xdc97501024f7022649c505bfd8d7c0a78ccdf593**

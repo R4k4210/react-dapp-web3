@@ -8,8 +8,8 @@ import { IUseWeb3 } from "../types/types";
 
 const useWeb3 = (): IUseWeb3 => {
     const { state, dispatch } = useContext(Web3Context);
-    const { walletAddress, web3, provider, chainId } = state;
-    const [isWalletConnected, setIsWalletConnected] = useState(false);
+    const { walletAddress, web3, provider, chainId, isWalletConnected } = state;
+    const [isInitialized, setIsInicialized] = useState(false);
 
     useEffect(() => {
         const checkConnection = async () => {
@@ -22,10 +22,6 @@ const useWeb3 = (): IUseWeb3 => {
 
         checkConnection();
     }, []);
-
-    useEffect(() => {
-        setIsWalletConnected(walletAddress ? true : false);
-    }, [walletAddress]);
 
     /**
      * Initialize connection with provider
@@ -53,7 +49,7 @@ const useWeb3 = (): IUseWeb3 => {
             await provider.disconnect();
         }
 
-        dispatchAction(EActionTypes.DISCONNECT, null, null, EMPTY, 0);
+        dispatchAction(EActionTypes.DISCONNECT, null, null, EMPTY, 0, false);
     };
 
     /**
@@ -69,11 +65,13 @@ const useWeb3 = (): IUseWeb3 => {
         const chainId = await getChainId(web3);
 
         if (!walletAddress) {
-            dispatchAction(EActionTypes.BLOCK, null, null, EMPTY, 0);
+            dispatchAction(EActionTypes.BLOCK, null, null, EMPTY, 0, false);
+            setIsInicialized(true);
             return;
         }
 
-        dispatchAction(EActionTypes.CONNECT, web3, mkprovider, walletAddress, chainId);
+        dispatchAction(EActionTypes.CONNECT, web3, mkprovider, walletAddress, chainId, true);
+        setIsInicialized(true);
     };
 
     /**
@@ -108,11 +106,13 @@ const useWeb3 = (): IUseWeb3 => {
         const chainId = await getChainId(web3);
 
         if (!walletAddress) {
-            dispatchAction(EActionTypes.BLOCK, null, null, EMPTY, 0);
+            dispatchAction(EActionTypes.BLOCK, null, null, EMPTY, 0, false);
+            setIsInicialized(true);
             return;
         }
 
-        dispatchAction(EActionTypes.CONNECT, web3, wcprovider, walletAddress, chainId);
+        dispatchAction(EActionTypes.CONNECT, web3, wcprovider, walletAddress, chainId, true);
+        setIsInicialized(true);
     };
 
     /**
@@ -161,16 +161,16 @@ const useWeb3 = (): IUseWeb3 => {
             const web3: Web3 = new Web3(web3Provider);
             const newWalletAddress = await getWalletAddress(web3);
             if (!newWalletAddress) {
-                dispatchAction(EActionTypes.BLOCK, null, null, EMPTY, 0);
+                dispatchAction(EActionTypes.BLOCK, null, null, EMPTY, 0, false);
                 return;
             }
 
-            dispatchAction(EActionTypes.WALLET_CHANGED, null, null, newWalletAddress, 0);
+            dispatchAction(EActionTypes.WALLET_CHANGED, null, null, newWalletAddress, 0, false);
         });
 
         web3Provider.on(EProviderEvents.CHAIN_CHANGED, (chainId: string) => {
             const newChainId = parseInt(chainId, 16);
-            dispatchAction(EActionTypes.CHAIN_CHANGED, null, null, EMPTY, newChainId);
+            dispatchAction(EActionTypes.CHAIN_CHANGED, null, null, EMPTY, newChainId, false);
             window.location.reload();
         });
     };
@@ -200,23 +200,26 @@ const useWeb3 = (): IUseWeb3 => {
      * @param {Web3["givenProvider"]} provider - provider instance
      * @param {string} walletAddress - user wallet address
      * @param {number} chainId - chain id
+     * @param {boolean} isWalletConnected - is connected?
      */
     const dispatchAction = (
         type: EActionTypes,
         web3: Web3 | null,
         provider: Web3["givenProvider"],
         walletAddress: string,
-        chainId: number
+        chainId: number,
+        isWalletConnected: boolean
     ): void =>
         dispatch({
             type: type,
-            payload: { web3, provider, walletAddress, chainId },
+            payload: { web3, provider, walletAddress, chainId, isWalletConnected },
         });
 
     return {
         isWalletConnected,
         walletAddress,
         chainId,
+        isInitialized,
         web3,
         connect,
         disconnect,
