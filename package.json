@@ -1,16 +1,9 @@
 {
     "name": "react-dapp-web3",
-    "version": "2.2.2",
+    "version": "2.2.3",
     "description": "Easy Web3, Metamask and WalletConnect integration package. HOC and custom hook to manage wallet address, connection and signature.",
     "url": "https://github.com/R4k4210/react-dapp-web3/issues",
-    "keywords": [
-        "web3",
-        "walletconnect",
-        "metamask",
-        "web3-provider",
-        "hoc",
-        "hook"
-    ],
+    "keywords": ["web3", "walletconnect", "metamask", "web3-provider", "hoc", "hook"],
     "author": "Santiago Chopitea <santiagochopitea@gmail.com> (https://github.com/R4k4210)",
     "license": "MIT",
     "homepage": "https://github.com/R4k4210/react-dapp-web3#readme",
@@ -18,9 +11,7 @@
     "main": "lib/index.js",
     "module": "lib/index.es.js",
     "types": "lib/index.d.ts",
-    "files": [
-        "lib"
-    ],
+    "files": ["lib"],
     "scripts": {
         "test": "jest",
         "build": "rollup -c",
