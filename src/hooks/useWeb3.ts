@@ -9,7 +9,7 @@ import { IUseWeb3 } from "../types/types";
 const useWeb3 = (): IUseWeb3 => {
     const { state, dispatch } = useContext(Web3Context);
     const { walletAddress, web3, provider, chainId, isWalletConnected } = state;
-    const [isInitialized, setIsInicialized] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
         const checkConnection = async () => {
@@ -66,12 +66,12 @@ const useWeb3 = (): IUseWeb3 => {
 
         if (!walletAddress) {
             dispatchAction(EActionTypes.BLOCK, null, null, EMPTY, 0, false);
-            setIsInicialized(true);
+            setIsInitialized(true);
             return;
         }
 
         dispatchAction(EActionTypes.CONNECT, web3, mkprovider, walletAddress, chainId, true);
-        setIsInicialized(true);
+        setIsInitialized(true);
     };
 
     /**
@@ -85,10 +85,14 @@ const useWeb3 = (): IUseWeb3 => {
 
         registerProviderEvents(wcprovider);
         const web3: Web3 = setupWeb3(wcprovider);
+        let walletAddress = null;
+        let chainId = 0;
+        let isEnabled = false;
 
         if (checkingConnection && hasPermissionToConnect(web3)) {
             try {
                 await wcprovider.enable();
+                isEnabled = true;
             } catch (error) {
                 console.error(error);
             }
@@ -97,22 +101,25 @@ const useWeb3 = (): IUseWeb3 => {
         if (!checkingConnection) {
             try {
                 await wcprovider.enable();
+                isEnabled = true;
             } catch (error) {
                 console.error(error);
             }
         }
 
-        const walletAddress = await getWalletAddress(web3);
-        const chainId = await getChainId(web3);
+        if (isEnabled) {
+            walletAddress = await getWalletAddress(web3);
+            chainId = await getChainId(web3);
+        }
 
         if (!walletAddress) {
             dispatchAction(EActionTypes.BLOCK, null, null, EMPTY, 0, false);
-            setIsInicialized(true);
+            setIsInitialized(true);
             return;
         }
 
         dispatchAction(EActionTypes.CONNECT, web3, wcprovider, walletAddress, chainId, true);
-        setIsInicialized(true);
+        setIsInitialized(true);
     };
 
     /**
@@ -179,18 +186,14 @@ const useWeb3 = (): IUseWeb3 => {
      * @param {Web3} web3 - Web3 instance
      * @return {Promise<string>} walletAddress
      */
-    const getWalletAddress = async (web3: Web3): Promise<string> => {
-        return (await web3.eth.getAccounts())[0];
-    };
+    const getWalletAddress = async (web3: Web3): Promise<string> => (await web3.eth.getAccounts())[0];
 
     /**
      * Return the Web3 instance with the given provider
      * @param {Web3["givenProvider"]} web3Provider - provider instance
      * @return {Web3} Web3 instance
      */
-    const setupWeb3 = (provider: Web3["givenProvider"]): Web3 => {
-        return new Web3(provider);
-    };
+    const setupWeb3 = (provider: Web3["givenProvider"]): Web3 => new Web3(provider);
 
     /**
      * Dispatch new actions and update the context
