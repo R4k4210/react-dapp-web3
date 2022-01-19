@@ -9,7 +9,7 @@ import { IUseWeb3 } from "../types/types";
 const useWeb3 = (): IUseWeb3 => {
     const { state, dispatch } = useContext(Web3Context);
     const { walletAddress, web3, provider, chainId, isWalletConnected } = state;
-    const [isInitialized, setIsInicialized] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
         const checkConnection = async () => {
@@ -66,12 +66,12 @@ const useWeb3 = (): IUseWeb3 => {
 
         if (!walletAddress) {
             dispatchAction(EActionTypes.BLOCK, null, null, EMPTY, 0, false);
-            setIsInicialized(true);
+            setIsInitialized(true);
             return;
         }
 
         dispatchAction(EActionTypes.CONNECT, web3, mkprovider, walletAddress, chainId, true);
-        setIsInicialized(true);
+        setIsInitialized(true);
     };
 
     /**
@@ -114,12 +114,12 @@ const useWeb3 = (): IUseWeb3 => {
 
         if (!walletAddress) {
             dispatchAction(EActionTypes.BLOCK, null, null, EMPTY, 0, false);
-            setIsInicialized(true);
+            setIsInitialized(true);
             return;
         }
 
         dispatchAction(EActionTypes.CONNECT, web3, wcprovider, walletAddress, chainId, true);
-        setIsInicialized(true);
+        setIsInitialized(true);
     };
 
     /**
