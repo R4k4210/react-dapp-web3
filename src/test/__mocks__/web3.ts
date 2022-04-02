@@ -13,10 +13,16 @@ function __setBlockNumber(number: number) {
     blockNumber = number;
 }
 
+const personal = {
+    sign: jest.fn().mockReturnValue("signedMessage"),
+};
+
 const eth = {
+    personal: personal,
     Contract: jest.fn().mockImplementation(() => mockWeb3EthContract),
     getBlockNumber: () => blockNumber,
-    getAccounts: jest.fn().mockReturnValue(["0xtest"]),
+    getAccounts: jest.fn().mockReturnValue(["0xTest"]),
+    getChainId: jest.fn().mockReturnValue(1),
 };
 
 const web3 = function (provider: any) {

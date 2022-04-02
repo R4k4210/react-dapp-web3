@@ -13,7 +13,8 @@
     "types": "lib/index.d.ts",
     "files": ["lib"],
     "scripts": {
-        "test": "jest",
+        "test": "REACT_APP_INFURA_ID=123 jest",
+        "test:coverage": "REACT_APP_INFURA_ID=123 jest --coverage",
         "build": "rollup -c",
         "watch": "rollup -cw",
         "lint": "eslint . --ext .tsx",
