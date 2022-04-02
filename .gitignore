@@ -6,3 +6,5 @@
 # production
 /lib
 
+#coverage
+/coverage
