@@ -1,19 +1,14 @@
-import { createContext, Dispatch, ReactNode, useReducer } from "react";
-import { IWeb3Context, TAction } from "../types/types";
+import { createContext, Dispatch, useReducer } from "react";
+import { IWeb3Context, IWeb3ContextProvider, TAction } from "../types/types";
 import { EActionTypes, EMPTY } from "../enum/enums";
 
-declare global {
-    interface Window {
-        ethereum: any;
-    }
-}
-
-const initialState: IWeb3Context = {
+let initialState: IWeb3Context = {
     web3: null,
     provider: null,
     walletAddress: EMPTY,
     chainId: 0,
     isWalletConnected: false,
+    config: null,
 };
 
 export const Web3Context = createContext<{
@@ -59,7 +54,9 @@ const web3Reducer = (state: IWeb3Context, action: TAction): IWeb3Context => {
     }
 };
 
-export const Web3ContextProvider = ({ children }: { children: ReactNode }): JSX.Element => {
+export const Web3ContextProvider = ({ children, config }: IWeb3ContextProvider): JSX.Element => {
+    initialState.config = config;
+
     const [state, dispatch] = useReducer(web3Reducer, initialState);
 
     return <Web3Context.Provider value={{ state, dispatch }}>{children}</Web3Context.Provider>;
