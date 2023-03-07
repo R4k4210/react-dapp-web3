@@ -17,5 +17,6 @@ export enum EProviderEvents {
 export enum EErrors {
     WEB3_INSTANCE = "Web3 is not initialized",
     WALLET_ADDRESS = "Wallet address is empty",
-    WC_DISCONNECT = "Disconnect is only available for WalletConnect",
+    METAMASK_DISCONNECT = "Disconnect in MetaMask is not implemented",
+    WALLET_CONNECT_CONFIG = "WalletConnect config is needed",
 }
