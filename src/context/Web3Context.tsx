@@ -2,7 +2,7 @@ import { createContext, Dispatch, useReducer } from "react";
 import { IWeb3Context, IWeb3ContextProvider, TAction } from "../types/types";
 import { EActionTypes, EMPTY } from "../enum/enums";
 
-let initialState: IWeb3Context = {
+const initialState: IWeb3Context = {
     web3: null,
     provider: null,
     walletAddress: EMPTY,
