@@ -15,10 +15,19 @@ npm install react-dapp-web3
 
 # Usage
 
-### InfuraId for WalletConnect
+### WalletConnect V2 (V1 was deprecated)
 
-WalletConnect needs the InfuraId. Create a .env file in your project and add the following
-enviroment variable `REACT_APP_INFURA_ID=<your-infuraid>`.
+WalletConnect V2 needs the ProjectId and ChainIds. Now to add the providers configuration, you have to pass an object
+with the config. In this way the library is ready to handle more providers in future, like Coinbase.
+
+```
+{
+    walletConnectV2: {
+        projectId: "<your-projectId>",
+        chainIds: [1],
+    },
+}
+```
 
 ### Import ContextProvider for wrapping your app
 
@@ -26,10 +35,17 @@ enviroment variable `REACT_APP_INFURA_ID=<your-infuraid>`.
 import { Web3ContextProvider } from "react-dapp-web3";
 import Layout from "./components/Layout";
 
+const providersConfig = {
+    walletConnectV2: {
+        projectId: "<your-projectId>",
+        chainIds: [1],
+    },
+}
+
 function App(): JSX.Element {
     return (
         <div className="App">
-            <Web3ContextProvider>
+            <Web3ContextProvider config={providersConfig}>
                 <Layout />
             </Web3ContextProvider>
         </div>
@@ -86,11 +102,3 @@ const Navbar = (): JSX.Element => {
 
 Feel free to contribute.
 All suggestions to help improve this library are welcome.
-
-### Donations
-
-If you like the library and you want to support the development - please consider to donate. Any donations are greatly appreciated :D !!
-
-**ERC20 - 0x3079c9aC68b629419213A864dc1899Ab4fC7246B**
-
-**BEP20 - 0xdc97501024f7022649c505bfd8d7c0a78ccdf593**
