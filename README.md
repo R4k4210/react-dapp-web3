@@ -17,7 +17,7 @@ npm install react-dapp-web3
 
 ### WalletConnect V2 (V1 was deprecated)
 
-WalletConnect V2 needs the ProjectId and ChainIds. To add the providers configuration, you have to pass an object
+WalletConnect V2 needs the ProjectId and ChainIds. To add the providers' configuration, you have to pass an object
 containing the configuration. In this way the library is prepared to handle more providers in future, like Coinbase.
 
 ```
