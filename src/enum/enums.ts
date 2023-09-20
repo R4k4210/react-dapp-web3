@@ -20,3 +20,9 @@ export enum EErrors {
     METAMASK_DISCONNECT = "Disconnect in MetaMask is not implemented",
     WALLET_CONNECT_CONFIG = "WalletConnect config is needed",
 }
+
+export enum EWalletProviders {
+    METAMASK = "METAMASK",
+    WALLET_CONNECT_V2 = "WALLET_CONNECT_V2",
+    COINBASE = "COINBASE",
+}

@@ -1,6 +1,6 @@
-import { Web3Context, Web3ContextProvider } from "./context";
-import withWeb3 from "./hoc";
 import useWeb3 from "./hooks";
-import { IUseWeb3, IWithWeb3, IWeb3Context } from "./types/types";
+import { Web3Context, Web3ContextProvider } from "./context";
+import { IUseWeb3, IWeb3Context } from "./types/types";
+import { EWalletProviders } from "./enum/enums";
 
-export { withWeb3, useWeb3, Web3Context, Web3ContextProvider, IUseWeb3, IWithWeb3, IWeb3Context };
+export { useWeb3, Web3Context, Web3ContextProvider, IUseWeb3, IWeb3Context, EWalletProviders };

@@ -13,8 +13,8 @@ const WalletConnectV2 = ({ chainIds, projectId }: IWalletConnectV2) => {
 
         return await EthereumProvider.init({
             projectId,
-            chains: chainIds,
-            methods: ["eth_sendTransaction", "personal_sign"],
+            chains: chainIds as any,
+            showQrModal: true,
         });
     };
 
@@ -23,7 +23,25 @@ const WalletConnectV2 = ({ chainIds, projectId }: IWalletConnectV2) => {
         return provider.isWalletConnect && provider.connected && provider.accounts.length > 0;
     };
 
-    return { getProvider, isEnabled };
+    const registerEvents = async () => {
+        const provider = await getProvider();
+        // chain changed
+        provider.on("chainChanged", () => { });
+        // accounts changed
+        provider.on("accountsChanged", () => { });
+        // session disconnect
+        provider.on("disconnect", () => {
+            console.log("wallet connect disconnected");
+        });
+    };
+
+    const disconnect = async () => {
+        console.log("wallet connect disconnected");
+        const provider = await getProvider();
+        return await provider.disconnect();
+    };
+
+    return { getProvider, isEnabled, registerEvents, disconnect };
 };
 
 export default WalletConnectV2;
