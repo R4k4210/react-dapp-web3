@@ -54,7 +54,7 @@ const web3Reducer = (state: IWeb3Context, action: TAction): IWeb3Context => {
     }
 };
 
-export const Web3ContextProvider = ({ children, config }: IWeb3ContextProvider): JSX.Element => {
+export const Web3ContextProvider = ({ children, config }: IWeb3ContextProvider) => {
     initialState.config = config;
 
     const [state, dispatch] = useReducer(web3Reducer, initialState);
